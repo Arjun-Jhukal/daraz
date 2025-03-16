@@ -2,7 +2,6 @@ import { Document } from "mongoose";
 
 export type UserRole = "customer" | "seller" | "admin";
 export interface IUser extends Document {
-
     name: string;
     email: string;
     phoneNumber: string;
@@ -13,6 +12,7 @@ export interface IUser extends Document {
     resetPasswordToken?: string | null;
     resetPasswordExpires?: Date | null;
     refreshToken: string;
+    profile: File | null;
     seller?: {
         id: number;
         store: string;

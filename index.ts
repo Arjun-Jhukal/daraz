@@ -3,7 +3,9 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import connectDB from './src/config';
 import authRoutes from './src/routes/authRoute';
-import { setupSwagger } from './swagerConfig';
+import swaggerUi from 'swagger-ui-express';
+import swaggerDocument from "./swagger.json";
+import userRoutes from './src/routes/userRoute';
 
 dotenv.config();
 
@@ -15,7 +17,8 @@ app.use(cors());
 
 app.use(express.json());
 
-setupSwagger(app);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 
 connectDB();
 
@@ -30,3 +33,4 @@ app.get("/", (req, res) => {
 })
 
 app.use('/', authRoutes);
+app.use('/', userRoutes);

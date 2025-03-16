@@ -1,51 +1,14 @@
 import { NextFunction, Request, Response } from "express";
 import userModel from "../../models/userModel";
 import jwt from "jsonwebtoken";
+import { sanitizeUser } from "../../utils/helper";
 
 
-/**
- * @swagger
- * /register:
- *   post:
- *     summary: Register a new user
- *     description: Registers a user with name, email, password, and phone number.
- *     tags:
- *       - Authentication
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - name
- *               - email
- *               - password
- *               - phoneNumber
- *             properties:
- *               name:
- *                 type: string
- *               email:
- *                 type: string
- *               password:
- *                 type: string
- *                 format: password
- *               phoneNumber:
- *                 type: string
- *     responses:
- *       201:
- *         description: User registered successfully
- *       400:
- *         description: Missing or invalid fields
- *       409:
- *         description: Email already exists
- *       500:
- *         description: Internal server error
- */
 
 export const registerUser = async (req: Request, res: Response) => {
     try {
         const { name, email, password, phoneNumber } = req.body;
+        const profile = req.file;
 
         if (!name) {
             return res.status(400).json({ field: "name", message: "Name is required." });
@@ -66,9 +29,12 @@ export const registerUser = async (req: Request, res: Response) => {
         }
 
         const existingUser = await userModel.findOne({ email });
+
         if (existingUser) {
             return res.status(409).json({ status: "error", message: "Email already exists." });
         }
+
+        await userModel.insertOne({ email, phoneNumber, name, password, profile: profile ? { filename: profile.filename, size: profile.size, mimetype: profile.mimetype } : null })
 
         return res.status(201).json({ status: "success", message: "User registered successfully." });
 
@@ -93,7 +59,7 @@ export const loginUser = async (req: Request, res: Response) => {
 
         const user = await userModel.findOne({ email });
         if (!user) {
-            return res.status(404).json({ status: "error", message: "User not found." });
+            return res.status(404).json({ status: 404, message: "User not found." });
         }
 
         const accessToken = jwt.sign(
@@ -110,12 +76,11 @@ export const loginUser = async (req: Request, res: Response) => {
 
         user.refreshToken = refreshToken;
 
-        const { password: _, ...userWithoutPassword } = user.toObject();
 
         return res.status(200).json({
             status: "success",
             message: "User logged in successfully.",
-            user: userWithoutPassword,
+            user: sanitizeUser(user),
             accessToken,
             refreshToken,
         });

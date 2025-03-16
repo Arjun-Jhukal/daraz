@@ -1,6 +1,8 @@
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import { Express } from "express";
+import userModel from "./src/models/userModel";
+
 
 const options = {
     definition: {
@@ -8,7 +10,7 @@ const options = {
         info: {
             title: "Daraz API",
             version: "1.0.0",
-            description: "API documentation for the Daraz clone",
+            description: "API documentation for the Daraz",
         },
         servers: [
             {
@@ -24,11 +26,13 @@ const options = {
                     bearerFormat: "JWT",
                 },
             },
+            schemas: {
+                userModel
+            }
         },
         security: [{ bearerAuth: [] }],
     },
-    apis: ["./src/routes/**/*.ts", "./src/controllers/**/*.ts"]
-
+    apis: ["./src/routes/**/*.ts", "./src/controllers/**/*.ts"], // Ensure these paths are correct
 };
 
 const swaggerSpec = swaggerJSDoc(options);

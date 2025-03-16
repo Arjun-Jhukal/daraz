@@ -11,6 +11,11 @@ const userSchema = new Schema<IUser>({
     updatedAt: { type: Date, default: Date.now },
     resetPasswordToken: { type: String, default: null },
     resetPasswordExpires: { type: Date, default: null },
+    profile: {
+        filename: { type: String, default: null },
+        size: { type: Number, default: null },
+        mimetype: { type: String, default: null },
+    },
     seller: {
         id: { type: Number, unique: true },
         store: { type: Number, unique: true }
